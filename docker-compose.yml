@@ -1,0 +1,30 @@
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    ports:
+      - "5000:5000"
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000
+      --backend-store-uri sqlite:///mlflow.db
+      --allowed-hosts "*"
+    volumes:
+      - ./mlruns:/mlruns
+    working_dir: /mlruns
+
+  trainer:
+    build: .
+    depends_on:
+      - mlflow
+    environment:
+      - UV_LINK_MODE=copy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    volumes:
+      - .:/app
+      - /app/.venv
+    command: sh -c "uv run load_dateset_pipeline.py && uv run train.py"

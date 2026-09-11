@@ -1,0 +1,4 @@
+/wine_data.csv
+/.venv
+/mlruns
+/random_forest.joblib
